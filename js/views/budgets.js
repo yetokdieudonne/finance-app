@@ -1,21 +1,29 @@
-import { Budgets, Transactions, Accounts, Categories } from "../db.js";
+import { DB, Budgets, Transactions, Accounts, Categories } from "../db.js";
 import { formatAmount, parseAmount, monthYearLabel, addMonths } from "../format.js";
 import * as Calc from "../calculator.js";
 import { icon, renderIcons } from "../components/icon.js";
-import { openFormSheet, confirmDialog, openActionSheet, openPickerSheet } from "../components/modal.js";
+import { openFormSheet, openSheetCustom, confirmDialog, openActionSheet, openPickerSheet } from "../components/modal.js";
 import { showToast } from "../components/toast.js";
 import { escapeHtml } from "../util.js";
 import { Notifications } from "../notifications.js";
 
-export const title = "Budgets";
-
 let referenceDate = new Date();
 
-export function getActions() {
-  return [{ icon: "plus", onClick: () => openAddEditBudget({}) }];
-}
-
 const ALERT_LABEL = { soon: "Budget presque atteint", over: "Budget dépassé" };
+
+// ============ Gestion des budgets ============
+export function openBudgetsManager() {
+  let bodyRef = null;
+  const unsubscribe = DB.onChange(() => { if (bodyRef) render(bodyRef); });
+
+  openSheetCustom({
+    title: "Budgets",
+    leading: { label: "Fermer" },
+    trailing: { label: "Ajouter", onClick: () => openAddEditBudget({}) },
+    onClose: unsubscribe,
+    build: (body) => { bodyRef = body; render(body); },
+  });
+}
 
 /**
  * Vérifie les budgets du mois en cours et déclenche une notification pour ceux qui viennent

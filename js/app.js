@@ -8,24 +8,23 @@ import { renderIcons } from "./components/icon.js";
 import { showToast } from "./components/toast.js";
 import { openActionSheet, openDrawer, confirmDialog } from "./components/modal.js";
 import { checkDueNotifications, openRecurringManager } from "./views/recurring.js";
-import { checkBudgetNotifications } from "./views/budgets.js";
+import { checkBudgetNotifications, openBudgetsManager } from "./views/budgets.js";
 import { checkDebtNotifications, openDebtsManager } from "./views/debts.js";
 
 import * as DashboardView from "./views/dashboard.js";
 import * as TransactionsView from "./views/transactions.js";
-import * as BudgetsView from "./views/budgets.js";
+import * as ProjectsView from "./views/projects.js";
 import * as StatisticsView from "./views/statistics.js";
 import * as SettingsView from "./views/settings.js";
 import { openAddEditTransaction } from "./views/transactions.js";
 import { openAccountsManager } from "./views/accounts.js";
 import { openCategoriesManager } from "./views/categories.js";
 import { openGoalsManager } from "./views/goals.js";
-import { openProjectsManager } from "./views/projects.js";
 
 const VIEWS = {
   dashboard: DashboardView,
   transactions: TransactionsView,
-  budgets: BudgetsView,
+  projects: ProjectsView,
   statistics: StatisticsView,
   settings: SettingsView,
 };
@@ -129,7 +128,7 @@ function openMainDrawer() {
           <button class="drawer__item" data-item="statistics"><i data-lucide="bar-chart-3"></i>Statistiques</button>
           <button class="drawer__item" data-item="accounts"><i data-lucide="credit-card"></i>Comptes</button>
           <button class="drawer__item" data-item="goals"><i data-lucide="target"></i>Objectifs &amp; coffres</button>
-          <button class="drawer__item" data-item="projects"><i data-lucide="briefcase"></i>Projets</button>
+          <button class="drawer__item" data-item="budgets"><i data-lucide="pie-chart"></i>Budgets</button>
           <button class="drawer__item" data-item="debts"><i data-lucide="users"></i>Dettes</button>
           <p class="drawer__section-label">Configuration</p>
           <button class="drawer__item" data-item="categories"><i data-lucide="tag"></i>Catégories</button>
@@ -147,7 +146,7 @@ function openMainDrawer() {
         categories: openCategoriesManager,
         recurring: openRecurringManager,
         goals: openGoalsManager,
-        projects: openProjectsManager,
+        budgets: openBudgetsManager,
         debts: openDebtsManager,
         settings: () => switchTab("settings"),
         disconnect: () => handleDisconnectFromDrawer(),

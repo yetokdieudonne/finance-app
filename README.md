@@ -45,8 +45,9 @@ et pilotables depuis Windows.
 
 - Tableau de bord : solde total, résumé du mois, échéances à venir, des blocs raccourcis
   **Comptes**, **Objectifs & coffres** et **Dettes** (chacun ouvre sa propre page), dernières
-  transactions. Statistiques, Catégories, Transactions récurrentes et Paramètres sont accessibles
-  via le menu latéral (onglet **Menu** de la barre du bas).
+  transactions. Statistiques, Catégories, Budgets, Transactions récurrentes et Paramètres sont
+  accessibles via le menu latéral (onglet **Menu** de la barre du bas).
+- Barre du bas : **Accueil**, **Transactions**, **Projets**, **Menu**.
 - Comptes : liste avec ajout de nouveaux comptes et 10 dernières transactions (tous comptes) en
   bas de la page ; détail d'un compte avec boutons **Ajouter / Déduire** un montant en un tap
   (sans passer par le formulaire complet) et historique complet des opérations. Solde recalculé
@@ -73,8 +74,8 @@ et pilotables depuis Windows.
 - **Projets** : un plan de dépenses nommé (voyage, événement, achat...) composé de plusieurs
   postes estimés (ex. Transport, Hôtel, Imprévu) dont le **coût total se calcule automatiquement**
   à mesure qu'on en ajoute. Distinct des budgets (pas mensuel/récurrent) et des objectifs (pas
-  d'épargne progressive vers un montant) — un simple prévisionnel additif. Accessible via le
-  menu latéral (section Suivi).
+  d'épargne progressive vers un montant) — un simple prévisionnel additif. Accessible directement
+  depuis la barre du bas (a remplacé l'onglet Budgets, désormais dans le menu latéral).
 - **Dettes** : ce que des tiers vous doivent et ce que vous devez, par personne, avec montant,
   échéance optionnelle et raison. Chaque remboursement (partiel ou total) est enregistré avec
   historique modifiable/supprimable, et peut créditer/débiter un compte réel. Le bloc "Dettes"

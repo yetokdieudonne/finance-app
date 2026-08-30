@@ -9,74 +9,67 @@ import { escapeHtml } from "../util.js";
 
 const PROJECT_ICONS = ["briefcase", "plane", "home", "heart", "gift", "graduation-cap", "car", "sparkles", "flag", "target"];
 
+export const title = "Projets";
+
+export function getActions() {
+  return [{ icon: "plus", onClick: () => openAddEditProject({}) }];
+}
+
 // ============ Gestion des projets ============
-export function openProjectsManager() {
-  let bodyRef = null;
-  const unsubscribe = DB.onChange(() => { if (bodyRef) renderList(bodyRef); });
+export function render(container) {
+  const projects = Projects.all();
+  const currency = Accounts.all()[0]?.currency || "fcfa";
 
-  openSheetCustom({
-    title: "Projets",
-    leading: { label: "Fermer" },
-    onClose: unsubscribe,
-    build: (body) => { bodyRef = body; renderList(body); },
-  });
-
-  function renderList(body) {
-    const projects = Projects.all();
-    const currency = Accounts.all()[0]?.currency || "fcfa";
-
-    body.innerHTML = `
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-        <button class="btn btn--secondary" id="project-add-btn">${icon("plus")}Créer un projet</button>
-      </div>
+  container.innerHTML = `
+    <div class="view">
       <div id="project-list" style="display:flex;flex-direction:column;gap:12px;"></div>
-    `;
+    </div>
+  `;
 
-    const listEl = body.querySelector("#project-list");
-    if (projects.length === 0) {
-      listEl.innerHTML = `<div class="card"><div class="empty-state">${icon("briefcase")}<h3>Aucun projet</h3><p>Planifiez un voyage, un événement ou un achat en listant ses postes de dépense estimés : le coût total se calcule tout seul.</p></div></div>`;
-    } else {
-      listEl.innerHTML = projects
-        .map((p) => {
-          const total = Projects.totalCost(p);
-          const count = (p.items || []).length;
-          return `
-        <div class="card budget-card" data-project-id="${p.id}" style="cursor:pointer;">
-          <div class="budget-card__header">
-            <span class="budget-card__name">${icon(p.icon)}${escapeHtml(p.name)}</span>
-            <button class="icon-btn" data-more-id="${p.id}">${icon("more-vertical")}</button>
-          </div>
-          <div class="budget-card__amounts">
-            <span>${count} poste${count > 1 ? "s" : ""}</span>
-            <span style="font-weight:700;color:var(--text);">${formatAmount(total, currency)}</span>
-          </div>
-        </div>`;
-        })
-        .join("");
+  const listEl = container.querySelector("#project-list");
+  if (projects.length === 0) {
+    listEl.innerHTML = `<div class="card"><div class="empty-state">${icon("briefcase")}<h3>Aucun projet</h3><p>Planifiez un voyage, un événement ou un achat en listant ses postes de dépense estimés : le coût total se calcule tout seul.</p><button class="btn btn--primary" id="project-empty-add">Créer un projet</button></div></div>`;
+    listEl.querySelector("#project-empty-add").addEventListener("click", () => openAddEditProject({}));
+  } else {
+    listEl.innerHTML = projects
+      .map((p) => {
+        const total = Projects.totalCost(p);
+        const count = (p.items || []).length;
+        return `
+      <div class="card budget-card" data-project-id="${p.id}" style="cursor:pointer;">
+        <div class="budget-card__header">
+          <span class="budget-card__name">${icon(p.icon)}${escapeHtml(p.name)}</span>
+          <button class="icon-btn" data-more-id="${p.id}">${icon("more-vertical")}</button>
+        </div>
+        <div class="budget-card__amounts">
+          <span>${count} poste${count > 1 ? "s" : ""}</span>
+          <span style="font-weight:700;color:var(--text);">${formatCompactAmount(total, currency)}</span>
+        </div>
+      </div>`;
+      })
+      .join("");
 
-      listEl.querySelectorAll("[data-project-id]").forEach((card) => {
-        card.addEventListener("click", (e) => {
-          if (e.target.closest("[data-more-id]")) return;
-          openProjectDetail(card.dataset.projectId);
+    listEl.querySelectorAll("[data-project-id]").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("[data-more-id]")) return;
+        openProjectDetail(card.dataset.projectId);
+      });
+    });
+    listEl.querySelectorAll("[data-more-id]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.moreId;
+        openActionSheet({
+          actions: [
+            { label: "Modifier", icon: "pencil", onClick: () => openAddEditProject({ project: Projects.get(id) }) },
+            { label: "Supprimer", icon: "trash-2", destructive: true, onClick: () => confirmDeleteProject(id) },
+          ],
         });
       });
-      listEl.querySelectorAll("[data-more-id]").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const id = btn.dataset.moreId;
-          openActionSheet({
-            actions: [
-              { label: "Modifier", icon: "pencil", onClick: () => openAddEditProject({ project: Projects.get(id) }) },
-              { label: "Supprimer", icon: "trash-2", destructive: true, onClick: () => confirmDeleteProject(id) },
-            ],
-          });
-        });
-      });
-    }
-
-    body.querySelector("#project-add-btn").addEventListener("click", () => openAddEditProject({}));
-    renderIcons(body);
+    });
   }
+
+  renderIcons(container);
 }
 
 function confirmDeleteProject(id) {

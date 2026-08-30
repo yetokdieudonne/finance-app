@@ -61,7 +61,7 @@ export function openDebtsManager() {
           <span class="account-card__icon" style="width:34px;height:34px;background:${d.type === "owedToMe" ? "var(--green)" : "var(--red)"}22;color:${d.type === "owedToMe" ? "var(--green)" : "var(--red)"};flex-shrink:0;">${icon("user-round")}</span>
           <span style="min-width:0;overflow:hidden;">
             <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(d.personName)}</div>
-            <div style="font-size:12px;color:var(--text-secondary);">${formatAmount(Math.max(d.remainingAmount, 0), currency)}${d.dueDate ? " · " + mediumDateString(d.dueDate) : ""}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${formatCompactAmount(Math.max(d.remainingAmount, 0), currency)}${d.dueDate ? " · " + mediumDateString(d.dueDate) : ""}</div>
           </span>
         </span>
         <span class="status-pill status-pill--${status === "overdue" ? "overdue" : status === "settled" ? "paid" : "ok"}">${STATUS_LABEL[status]}</span>
@@ -80,11 +80,11 @@ export function openDebtsManager() {
       <div class="summary-grid" style="margin-bottom:16px;">
         <div class="card">
           <div class="summary-card__label">${icon("arrow-down-circle")}On vous doit</div>
-          <div class="summary-card__value text-green">${formatAmount(Calc.totalOwedToMe(Debts.all()), currency)}</div>
+          <div class="summary-card__value text-green">${formatCompactAmount(Calc.totalOwedToMe(Debts.all()), currency)}</div>
         </div>
         <div class="card">
           <div class="summary-card__label">${icon("arrow-up-circle")}Vous devez</div>
-          <div class="summary-card__value text-red">${formatAmount(Calc.totalIOwe(Debts.all()), currency)}</div>
+          <div class="summary-card__value text-red">${formatCompactAmount(Calc.totalIOwe(Debts.all()), currency)}</div>
         </div>
       </div>
 
