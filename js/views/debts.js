@@ -71,6 +71,8 @@ export function openDebtsManager() {
       .join("");
   }
 
+  let activeTab = "owedToMe";
+
   function renderList(body) {
     const owedToMe = Debts.byType("owedToMe");
     const iOwe = Debts.byType("iOwe");
@@ -92,15 +94,20 @@ export function openDebtsManager() {
         <button class="btn btn--secondary" id="debt-add-btn">${icon("plus")}Ajouter une dette</button>
       </div>
 
-      <div class="form-section">
-        <p class="form-section__label">On me doit</p>
-        <div class="form-group" id="debt-owedtome-list">${renderGroup(owedToMe, currency)}</div>
+      <div class="chip-row" id="debt-tabs" style="margin-bottom:14px;">
+        <button class="chip ${activeTab === "owedToMe" ? "is-active" : ""}" data-tab="owedToMe">On me doit (${owedToMe.length})</button>
+        <button class="chip ${activeTab === "iOwe" ? "is-active" : ""}" data-tab="iOwe">Je dois (${iOwe.length})</button>
       </div>
-      <div class="form-section">
-        <p class="form-section__label">Je dois</p>
-        <div class="form-group" id="debt-iowe-list">${renderGroup(iOwe, currency)}</div>
-      </div>
+
+      <div class="form-group" id="debt-list">${renderGroup(activeTab === "owedToMe" ? owedToMe : iOwe, currency)}</div>
     `;
+
+    body.querySelectorAll("#debt-tabs [data-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeTab = btn.dataset.tab;
+        renderList(body);
+      });
+    });
 
     body.querySelectorAll("[data-debt-id]").forEach((row) => {
       row.addEventListener("click", (e) => {

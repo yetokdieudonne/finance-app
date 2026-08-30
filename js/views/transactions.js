@@ -1,5 +1,5 @@
 import { DB, Transactions, Accounts, Categories } from "../db.js";
-import { formatAmount, formatSignedAmount, parseAmount, shortDateString, mediumDateString, sectionHeaderString, startOfDay, dateInputValue, fromDateInputValue } from "../format.js";
+import { formatAmount, formatSignedAmount, parseAmount, shortDateString, mediumDateString, sectionHeaderString, startOfDay, dateInputValue, fromDateInputValue, timeString, dateTimeInputValue, fromDateTimeInputValue } from "../format.js";
 import { icon, renderIcons } from "../components/icon.js";
 import { openFormSheet, openSheetCustom, confirmDialog, openActionSheet, openPickerSheet, openPhotoViewer } from "../components/modal.js";
 import { showToast } from "../components/toast.js";
@@ -159,7 +159,7 @@ export function openTransactionDetail(transaction) {
                  <div class="form-row"><span class="form-row__label">Vers</span><span style="color:var(--text-secondary);">${escapeHtml(toAccount?.name || "")}</span></div>`
               : `<div class="form-row"><span class="form-row__label">Catégorie</span><span style="color:var(--text-secondary);">${escapeHtml(category?.name || UNCATEGORIZED.name)}</span></div>
                  <div class="form-row"><span class="form-row__label">Compte</span><span style="color:var(--text-secondary);">${escapeHtml(account?.name || "")}</span></div>`}
-            <div class="form-row"><span class="form-row__label">Date</span><span style="color:var(--text-secondary);">${mediumDateString(t.date)}</span></div>
+            <div class="form-row"><span class="form-row__label">Date</span><span style="color:var(--text-secondary);">${mediumDateString(t.date)} à ${timeString(t.date)}</span></div>
           </div>
         </div>
         ${t.note ? `
@@ -227,7 +227,7 @@ export function renderTransactionRow(t, categoriesById, accounts, withDivider, w
     </span>
     <span class="tx-row__amounts">
       <div class="tx-row__amount ${amountClass}">${amountText}</div>
-      <div class="tx-row__date">${shortDateString(t.date)}</div>
+      <div class="tx-row__date">${shortDateString(t.date)} · ${timeString(t.date)}</div>
     </span>
     ${withActions ? `<button class="icon-btn" data-more-id="${t.id}" style="margin-left:4px;">${icon("more-vertical")}</button>` : ""}
   </div>`;
@@ -387,7 +387,7 @@ export function openAddEditTransaction({ transaction, defaultType = "expense" })
                 <span class="form-row__chevron">${icon("chevron-down")}</span>
               </span>
             </div>
-            <div class="form-row"><span class="form-row__label">Date</span><input id="f-date" type="date" value="${dateInputValue(transaction?.date || new Date())}" /></div>
+            <div class="form-row"><span class="form-row__label">Date</span><input id="f-date" type="datetime-local" value="${dateTimeInputValue(transaction?.date || new Date())}" /></div>
           </div>
         </div>
 
@@ -510,7 +510,7 @@ export function openAddEditTransaction({ transaction, defaultType = "expense" })
       const category = selectedCategoryId ? Categories.get(selectedCategoryId) : null;
       const resolvedTitle = rawTitle || category?.name || (type === "income" ? "Revenu" : "Dépense");
       const note = document.getElementById("f-note").value.trim();
-      const date = fromDateInputValue(document.getElementById("f-date").value).toISOString();
+      const date = fromDateTimeInputValue(document.getElementById("f-date").value).toISOString();
 
       let editReason = null;
       if (transaction) {
@@ -589,7 +589,7 @@ export function openTransferForm({ transaction } = {}) {
                 <span class="form-row__chevron">${icon("chevron-down")}</span>
               </span>
             </div>
-            <div class="form-row"><span class="form-row__label">Date</span><input id="f-date" type="date" value="${dateInputValue(transaction?.date || new Date())}" /></div>
+            <div class="form-row"><span class="form-row__label">Date</span><input id="f-date" type="datetime-local" value="${dateTimeInputValue(transaction?.date || new Date())}" /></div>
           </div>
         </div>
         ${transaction ? `
@@ -633,7 +633,7 @@ export function openTransferForm({ transaction } = {}) {
       const amount = parseAmount(document.getElementById("f-amount").value);
       if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
       if (fromAccountId === toAccountId) return sheetApi.showError("Sélectionnez deux comptes différents.");
-      const date = fromDateInputValue(document.getElementById("f-date").value).toISOString();
+      const date = fromDateTimeInputValue(document.getElementById("f-date").value).toISOString();
       const note = document.getElementById("f-note").value.trim();
       const toName = Accounts.get(toAccountId)?.name || "";
       const fromName = Accounts.get(fromAccountId)?.name || "";

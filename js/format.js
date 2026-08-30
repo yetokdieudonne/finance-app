@@ -130,3 +130,22 @@ export function fromDateInputValue(value) {
   const [y, m, d] = value.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
+
+export function timeString(value) {
+  const d = toDate(value);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function dateTimeInputValue(value) {
+  const d = toDate(value);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function fromDateTimeInputValue(value) {
+  const [datePart, timePart] = value.split("T");
+  const [y, m, d] = datePart.split("-").map(Number);
+  const [h, min] = (timePart || "00:00").split(":").map(Number);
+  return new Date(y, m - 1, d, h, min);
+}
