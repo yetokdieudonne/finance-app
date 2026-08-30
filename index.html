@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <title>Finance</title>
+
+  <meta name="description" content="Gestion de vos finances personnelles en FCFA." />
+  <meta name="theme-color" content="#0A84FF" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- iOS : ajout à l'écran d'accueil en mode standalone -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Finance" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.294.0/dist/umd/lucide.js" defer></script>
+</head>
+<body>
+  <div id="app" class="app">
+
+    <!-- Compte obligatoire (créer / se connecter) — s'affiche avant tout le reste tant que
+         l'utilisateur n'est pas connecté à son compte de synchronisation. -->
+    <!-- z-index sous celui des feuilles modales (backdrop 50 / sheet 51 / dialog 52) pour que
+         la boîte de réconciliation (compte existant déjà en ligne) reste cliquable par-dessus. -->
+    <div id="account-gate" class="lock-screen" style="z-index:40;" hidden>
+      <div class="auth-card">
+        <img src="icons/icon-192.png" alt="" class="auth-logo" />
+        <h1 id="gate-title">Créez votre compte</h1>
+        <p id="gate-subtitle" class="auth-subtitle">Un compte protège vos données et permet de les retrouver sur un autre appareil.</p>
+
+        <div class="auth-fields">
+          <div class="auth-field" id="gate-row-lastname">
+            <i data-lucide="user" class="auth-field__icon"></i>
+            <input id="gate-lastname" type="text" placeholder="Nom" autocapitalize="words" />
+          </div>
+          <div class="auth-field" id="gate-row-firstname">
+            <i data-lucide="user-round" class="auth-field__icon"></i>
+            <input id="gate-firstname" type="text" placeholder="Prénom" autocapitalize="words" />
+          </div>
+          <div class="auth-field" id="gate-row-email">
+            <i data-lucide="mail" class="auth-field__icon"></i>
+            <input id="gate-email" type="email" placeholder="Adresse mail" autocapitalize="none" autocorrect="off" />
+          </div>
+          <div class="auth-field" id="gate-row-password">
+            <i data-lucide="lock" class="auth-field__icon"></i>
+            <input id="gate-pw" type="password" placeholder="Mot de passe (6 caractères min.)" />
+            <button type="button" class="auth-field__toggle" id="gate-pw-toggle" aria-label="Afficher le mot de passe"><i data-lucide="eye"></i></button>
+          </div>
+        </div>
+
+        <p id="gate-error" class="auth-error" hidden><i data-lucide="alert-circle"></i><span id="gate-error-text"></span></p>
+
+        <button id="gate-continue" class="auth-btn">
+          <span class="auth-spinner" aria-hidden="true"></span>
+          <span id="gate-continue-label">Créer mon compte</span>
+        </button>
+
+        <p class="auth-switch"><span id="gate-toggle-hint">Vous avez déjà un compte ?</span> <button type="button" class="link-btn" id="gate-toggle-mode">Se connecter</button></p>
+      </div>
+    </div>
+
+    <!-- Écran de verrouillage -->
+    <div id="lock-screen" class="lock-screen" hidden>
+      <div class="lock-screen__content">
+        <div class="lock-screen__icon"><i data-lucide="shield-check"></i></div>
+        <h1>Finance verrouillée</h1>
+        <p>Authentifiez-vous pour accéder à vos données financières.</p>
+        <p id="lock-error" class="lock-screen__error" hidden></p>
+        <button id="lock-unlock-btn" class="btn btn--primary btn--large">
+          <i data-lucide="scan-face"></i>
+          <span>Déverrouiller</span>
+        </button>
+        <button id="lock-pin-btn" class="btn btn--ghost" hidden>Utiliser le code</button>
+      </div>
+    </div>
+
+    <!-- Barre supérieure -->
+    <header id="topbar" class="topbar">
+      <h1 id="topbar-title" class="topbar__title">Accueil</h1>
+      <div id="topbar-actions" class="topbar__actions"></div>
+    </header>
+    <div id="search-bar" class="search-bar" hidden>
+      <i data-lucide="search"></i>
+      <input id="search-input" type="search" placeholder="Rechercher une transaction" />
+    </div>
+
+    <!-- Contenu de l'onglet actif -->
+    <main id="view-root" class="view-root"></main>
+
+    <!-- Bouton d'ajout rapide -->
+    <button id="fab-add" class="fab" aria-label="Ajouter">
+      <i data-lucide="plus"></i>
+    </button>
+
+    <!-- Barre d'onglets -->
+    <nav class="tabbar">
+      <button class="tabbar__item is-active" data-tab="dashboard">
+        <i data-lucide="home"></i><span>Accueil</span>
+      </button>
+      <button class="tabbar__item" data-tab="transactions">
+        <i data-lucide="list"></i><span>Transactions</span>
+      </button>
+      <button class="tabbar__item" data-tab="budgets">
+        <i data-lucide="pie-chart"></i><span>Budgets</span>
+      </button>
+      <button class="tabbar__item" data-tab="menu">
+        <i data-lucide="menu"></i><span>Menu</span>
+      </button>
+    </nav>
+
+    <!-- Racine des feuilles modales (formulaires, détails, confirmations) -->
+    <div id="modal-root"></div>
+
+    <!-- Racine des toasts -->
+    <div id="toast-root" class="toast-root"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
