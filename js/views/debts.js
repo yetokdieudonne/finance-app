@@ -39,6 +39,7 @@ export function checkDebtNotifications() {
 // ============ Gestion des dettes ============
 export function openDebtsManager() {
   let bodyRef = null;
+  let activeTab = "owedToMe";
   const unsubscribe = DB.onChange(() => { if (bodyRef) renderList(bodyRef); });
 
   openSheetCustom({
@@ -70,8 +71,6 @@ export function openDebtsManager() {
       })
       .join("");
   }
-
-  let activeTab = "owedToMe";
 
   function renderList(body) {
     const owedToMe = Debts.byType("owedToMe");
