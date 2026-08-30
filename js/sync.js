@@ -182,6 +182,12 @@ export const Sync = {
     }
     await updateProfile(auth.currentUser, { displayName: `${first} ${last}` });
 
+    // Un compte tout juste créé doit démarrer vide : sans ce nettoyage, des données restées
+    // localement (test d'une session précédente, ou compte différent déconnecté sur cet
+    // appareil sans effacer ses données) se retrouveraient poussées vers ce nouveau compte.
+    DB.clearAll();
+    Profile.removePhoto();
+
     await pushToCloud();
     startListening();
     notifyStatus();

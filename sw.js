@@ -1,6 +1,6 @@
 // Service worker : cache l'app shell pour un fonctionnement 100% hors-ligne.
 // Incrémenter CACHE_VERSION à chaque déploiement pour invalider l'ancien cache.
-const CACHE_VERSION = "finance-v30";
+const CACHE_VERSION = "finance-v31";
 
 const APP_SHELL = [
   "./",
