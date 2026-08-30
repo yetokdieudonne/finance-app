@@ -402,9 +402,10 @@ function openRepaymentForm({ debt }) {
     build(body) {
       body.innerHTML = `
         <div class="amount-input-wrap">
-          <input id="f-amount" type="text" inputmode="decimal" placeholder="0" value="${Math.max(debt.remainingAmount, 0)}" />
+          <input id="f-amount" type="text" inputmode="decimal" placeholder="0" />
           <span class="amount-input-wrap__currency">${CURRENCIES[accounts[0]?.currency || "fcfa"].symbol}</span>
         </div>
+        <p style="text-align:center;color:var(--text-secondary);font-size:14px;margin:-14px 0 22px;">Montant dû : ${formatAmount(Math.max(debt.remainingAmount, 0), accounts[0]?.currency || "fcfa")}</p>
         <div class="form-section">
           <div class="form-group">
             <div class="form-row" id="f-account-row" style="cursor:pointer;">

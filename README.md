@@ -70,6 +70,11 @@ et pilotables depuis Windows.
   la liste et sur l'accueil, pratique pour se motiver visuellement (photo de la moto, du voyage...).
 - **Photo de reçu** sur une transaction (appareil photo ou galerie), compressée automatiquement
   avant stockage ; un petit icône caméra l'indique dans les listes.
+- **Projets** : un plan de dépenses nommé (voyage, événement, achat...) composé de plusieurs
+  postes estimés (ex. Transport, Hôtel, Imprévu) dont le **coût total se calcule automatiquement**
+  à mesure qu'on en ajoute. Distinct des budgets (pas mensuel/récurrent) et des objectifs (pas
+  d'épargne progressive vers un montant) — un simple prévisionnel additif. Accessible via le
+  menu latéral (section Suivi).
 - **Dettes** : ce que des tiers vous doivent et ce que vous devez, par personne, avec montant,
   échéance optionnelle et raison. Chaque remboursement (partiel ou total) est enregistré avec
   historique modifiable/supprimable, et peut créditer/débiter un compte réel. Le bloc "Dettes"
@@ -160,7 +165,7 @@ js/
                                   confirmations, menu latéral, visualiseur photo, icônes, toasts
   views/                          Un module par écran (dashboard, transactions, budgets,
                                   recurring = transactions récurrentes, goals = objectifs,
-                                  debts = dettes...)
+                                  projects = projets, debts = dettes...)
 ```
 
 ## Vérifié

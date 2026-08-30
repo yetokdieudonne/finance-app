@@ -2,7 +2,7 @@
 // aucune requête réseau n'est jamais faite pour lire/écrire des données financières.
 
 const STORAGE_PREFIX = "finance.";
-const COLLECTIONS = ["accounts", "transactions", "categories", "budgets", "recurringExpenses", "goals", "debts"];
+const COLLECTIONS = ["accounts", "transactions", "categories", "budgets", "recurringExpenses", "goals", "debts", "projects"];
 
 function uuid() {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -217,6 +217,39 @@ export const Goals = {
     const currentAmount = contributions.reduce((sum, c) => sum + c.amount, 0);
     DB.update("goals", goalId, { currentAmount, contributions });
     if (removed?.transactionId) DB.delete("transactions", removed.transactionId);
+  },
+};
+
+// "Projets" : un plan de dépenses nommé (voyage, événement, achat...) composé de plusieurs
+// postes estimés (Transport, Hôtel...) dont le coût total est simplement leur somme — ni un
+// budget mensuel récurrent, ni un objectif d'épargne progressive.
+export const Projects = {
+  all: () => [...DB.all("projects")].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+  get: (id) => DB.get("projects", id),
+  create: (data) => DB.insert("projects", { items: [], ...data }),
+  update: (id, patch) => DB.update("projects", id, patch),
+  remove: (id) => DB.delete("projects", id),
+  totalCost: (project) => (project.items || []).reduce((sum, item) => sum + item.amount, 0),
+  addItem(id, { name, amount }) {
+    const project = DB.get("projects", id);
+    if (!project) return null;
+    const item = { id: uuid(), name, amount };
+    const items = [...(project.items || []), item];
+    DB.update("projects", id, { items });
+    return item;
+  },
+  updateItem(id, itemId, patch) {
+    const project = DB.get("projects", id);
+    if (!project) return null;
+    const items = (project.items || []).map((i) => (i.id === itemId ? { ...i, ...patch } : i));
+    DB.update("projects", id, { items });
+    return items.find((i) => i.id === itemId) || null;
+  },
+  removeItem(id, itemId) {
+    const project = DB.get("projects", id);
+    if (!project) return;
+    const items = (project.items || []).filter((i) => i.id !== itemId);
+    DB.update("projects", id, { items });
   },
 };
 
