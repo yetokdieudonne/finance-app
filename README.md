@@ -28,7 +28,11 @@ les modules JavaScript et le service worker exigent un vrai serveur http.)
 4. L'app apparaît avec sa propre icône et s'ouvre en plein écran, sans barre d'adresse.
 
 Fonctionne aussi sur Android via Chrome ("Ajouter à l'écran d'accueil" / bannière d'installation
-automatique).
+automatique). Sur Android/Chrome/Edge, une fois connecté à son compte, l'app propose elle-même
+d'installer via une boîte de dialogue ("Installer" déclenche l'installation directement, sans
+passer par le menu du navigateur) — proposition qui ne revient pas avant 3 jours si elle est
+ignorée, et jamais si l'app est déjà installée. Sur iPhone, Apple n'autorisant pas ce
+déclenchement par code, l'app affiche à la place les instructions ci-dessus au premier lancement.
 
 ## Déployer gratuitement (aucune carte bancaire requise)
 

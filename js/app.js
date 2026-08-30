@@ -441,6 +441,8 @@ async function attemptUnlock() {
 function unlock() {
   isUnlocked = true;
   lockScreen.hidden = true;
+  appUnlocked = true;
+  maybeShowInstallPrompt();
 }
 
 function lockApp() {
@@ -484,6 +486,71 @@ document.addEventListener("visibilitychange", () => {
       lockApp();
     }
   }
+});
+
+// ============ Invite à l'installation (PWA) ============
+// Sur Android/Chrome/Edge, le navigateur permet de déclencher l'installation par code depuis
+// notre propre bouton "Installer" (API beforeinstallprompt, capturée puis rejouée à la
+// demande). Sur iOS, Safari ne propose pas cette API : Apple n'autorise l'ajout à l'écran
+// d'accueil que via son propre bouton Partager, donc on affiche à la place des instructions.
+// Dans les deux cas, un délai minimal entre deux propositions évite de harceler l'utilisateur
+// s'il ferme la boîte sans installer.
+const INSTALL_PROMPT_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000;
+let deferredInstallPrompt = null;
+let appUnlocked = false;
+
+function isIosDevice() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function isStandaloneDisplay() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function canShowInstallPrompt() {
+  const last = Number(localStorage.getItem("installPromptLastShown") || 0);
+  return Date.now() - last > INSTALL_PROMPT_COOLDOWN_MS;
+}
+
+function maybeShowInstallPrompt() {
+  if (!appUnlocked || isStandaloneDisplay() || !canShowInstallPrompt()) return;
+
+  if (deferredInstallPrompt) {
+    localStorage.setItem("installPromptLastShown", String(Date.now()));
+    confirmDialog({
+      title: "Installer Finance ?",
+      message: "Ajoutez l'application à votre écran d'accueil pour l'ouvrir en un tap, comme une vraie application, même hors connexion.",
+      confirmLabel: "Installer",
+      cancelLabel: "Plus tard",
+      destructive: false,
+      onConfirm: async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      },
+    });
+  } else if (isIosDevice()) {
+    localStorage.setItem("installPromptLastShown", String(Date.now()));
+    confirmDialog({
+      title: "Installer Finance ?",
+      message: "Appuyez sur le bouton Partager de Safari (carré avec une flèche), puis sur « Sur l'écran d'accueil ». L'app s'ouvrira ensuite en un tap, comme une vraie application.",
+      confirmLabel: "Compris",
+      cancelLabel: "Plus tard",
+      destructive: false,
+      onConfirm: () => {},
+    });
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  maybeShowInstallPrompt();
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
 });
 
 // ============ Initialisation ============
