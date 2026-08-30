@@ -171,6 +171,7 @@ export function openGoalDetail(goalId) {
         <p style="color:var(--text-secondary);margin:0;">sur ${formatAmount(goal.targetAmount, currency)}${goal.targetDate ? ` · avant le ${mediumDateString(goal.targetDate)}` : ""}</p>
         <div class="progress" style="margin-top:14px;"><div class="progress__bar" style="width:${progress * 100}%;background:${reached ? "var(--green)" : goal.colorHex};"></div></div>
         ${reached ? `<p style="color:var(--green);font-weight:600;margin-top:8px;">${icon("check-circle")} Objectif atteint !</p>` : ""}
+        ${goal.description ? `<p style="color:var(--text-secondary);margin-top:10px;font-size:14px;">${escapeHtml(goal.description)}</p>` : ""}
       </div>
 
       <div style="display:flex;gap:10px;margin-bottom:20px;">
@@ -288,6 +289,10 @@ export function openAddEditGoal({ goal }) {
           </div>
         </div>
         <div class="form-section">
+          <p class="form-section__label">Description de l'objectif (optionnel)</p>
+          <div class="form-group"><div class="form-row"><textarea id="f-description" rows="2" placeholder="Ajouter une description">${goal ? escapeHtml(goal.description || "") : ""}</textarea></div></div>
+        </div>
+        <div class="form-section">
           <p class="form-section__label">Icône</p>
           <div class="form-group"><div class="icon-grid" id="f-icons"></div></div>
         </div>
@@ -369,8 +374,9 @@ export function openAddEditGoal({ goal }) {
       if (target === null || target <= 0) return sheetApi.showError("Veuillez saisir un montant cible valide, supérieur à zéro.");
       const dateRaw = document.getElementById("f-date").value;
       const targetDate = dateRaw ? fromDateInputValue(dateRaw).toISOString() : null;
+      const description = document.getElementById("f-description").value.trim();
 
-      const payload = { name, targetAmount: target, icon: selectedIcon, colorHex: color, targetDate, photo: photoDataUrl };
+      const payload = { name, targetAmount: target, icon: selectedIcon, colorHex: color, targetDate, description, photo: photoDataUrl };
       try {
         if (goal) Goals.update(goal.id, payload);
         else Goals.create(payload);

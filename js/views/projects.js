@@ -107,6 +107,7 @@ export function openProjectDetail(projectId) {
         <span class="goal-card__icon" style="width:56px;height:56px;background:${project.colorHex}33;color:${project.colorHex};display:inline-flex;">${icon(project.icon)}</span>
         <p class="amount-display" style="margin:14px 0 2px;">${formatCompactAmount(total, currency)}</p>
         <p style="color:var(--text-secondary);margin:0;">Coût total estimé</p>
+        ${project.description ? `<p style="color:var(--text-secondary);margin-top:10px;font-size:14px;">${escapeHtml(project.description)}</p>` : ""}
       </div>
 
       <button class="btn btn--primary" style="width:100%;margin-bottom:20px;" id="project-add-item">${icon("plus")}Ajouter un poste</button>
@@ -210,6 +211,10 @@ export function openAddEditProject({ project }) {
           </div>
         </div>
         <div class="form-section">
+          <p class="form-section__label">Description du projet (optionnel)</p>
+          <div class="form-group"><div class="form-row"><textarea id="f-description" rows="2" placeholder="Ajouter une description">${project ? escapeHtml(project.description || "") : ""}</textarea></div></div>
+        </div>
+        <div class="form-section">
           <p class="form-section__label">Icône</p>
           <div class="form-group"><div class="icon-grid" id="f-icons"></div></div>
         </div>
@@ -242,9 +247,10 @@ export function openAddEditProject({ project }) {
       sheetApi.clearError();
       const name = document.getElementById("f-name").value.trim();
       if (!name) return sheetApi.showError("Le nom du projet est requis.");
+      const description = document.getElementById("f-description").value.trim();
 
-      if (project) Projects.update(project.id, { name, icon: selectedIcon, colorHex: color });
-      else Projects.create({ name, icon: selectedIcon, colorHex: color });
+      if (project) Projects.update(project.id, { name, description, icon: selectedIcon, colorHex: color });
+      else Projects.create({ name, description, icon: selectedIcon, colorHex: color });
 
       showToast(project ? "Projet modifié" : "Projet créé");
       sheetApi.close();
