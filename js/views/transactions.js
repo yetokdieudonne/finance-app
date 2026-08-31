@@ -359,10 +359,11 @@ export function openAddEditTransaction({ transaction, defaultType = "expense" })
     title: transaction ? "Modifier" : type === "income" ? "Nouveau revenu" : "Nouvelle dépense",
     build(body, sheetApi) {
       body.innerHTML = `
+        ${transaction ? `
         <div class="type-toggle" id="f-type" style="margin-bottom:6px;">
           <button data-value="expense">Dépense</button>
           <button data-value="income">Revenu</button>
-        </div>
+        </div>` : ""}
 
         <div class="amount-input-wrap">
           <input id="f-amount" type="text" inputmode="decimal" placeholder="0" value="${transaction ? String(transaction.amount) : ""}" />
@@ -454,16 +455,18 @@ export function openAddEditTransaction({ transaction, defaultType = "expense" })
 
       const typeToggle = body.querySelector("#f-type");
       function refreshTypeUI() {
-        typeToggle.querySelectorAll("button").forEach((b) => b.classList.toggle("is-active", b.dataset.value === type));
+        if (typeToggle) typeToggle.querySelectorAll("button").forEach((b) => b.classList.toggle("is-active", b.dataset.value === type));
         populateCategorySelect();
       }
-      typeToggle.querySelectorAll("button").forEach((b) =>
-        b.addEventListener("click", () => {
-          type = b.dataset.value;
-          selectedCategoryId = null;
-          refreshTypeUI();
-        })
-      );
+      if (typeToggle) {
+        typeToggle.querySelectorAll("button").forEach((b) =>
+          b.addEventListener("click", () => {
+            type = b.dataset.value;
+            selectedCategoryId = null;
+            refreshTypeUI();
+          })
+        );
+      }
 
       const categoryLabel = body.querySelector("#f-category-label");
       function populateCategorySelect() {
