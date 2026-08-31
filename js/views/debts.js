@@ -130,7 +130,7 @@ export function openDebtsManager() {
       });
     });
 
-    body.querySelector("#debt-history-link").addEventListener("click", () => openDebtHistory());
+    body.querySelector("#debt-history-link").addEventListener("click", () => openDebtHistory(activeTab));
 
     const searchInput = body.querySelector("#debt-search");
     searchInput.addEventListener("input", () => {
@@ -169,32 +169,24 @@ export function openDebtsManager() {
 }
 
 // ============ Historique des dettes réglées ============
-function openDebtHistory() {
+function openDebtHistory(type) {
   let bodyRef = null;
   const unsubscribe = DB.onChange(() => { if (bodyRef) renderHistory(bodyRef); });
 
   openSheetCustom({
-    title: "Historique",
+    title: type === "owedToMe" ? "Historique — Ce qu'on me doit" : "Historique — Ce que je dois",
     leading: { label: "Fermer" },
     onClose: unsubscribe,
     build: (body) => { bodyRef = body; renderHistory(body); },
   });
 
   function renderHistory(body) {
-    const settledOwedToMe = Debts.byType("owedToMe").filter((d) => d.remainingAmount <= 0);
-    const settledIOwe = Debts.byType("iOwe").filter((d) => d.remainingAmount <= 0);
+    const settled = Debts.byType(type).filter((d) => d.remainingAmount <= 0);
     const currency = Accounts.all()[0]?.currency || "fcfa";
 
     body.innerHTML = `
       <p style="color:var(--text-secondary);margin:0 0 20px;">Dettes entièrement réglées.</p>
-      <div class="form-section">
-        <p class="form-section__label">On me devait</p>
-        <div class="form-group">${renderGroup(settledOwedToMe, currency)}</div>
-      </div>
-      <div class="form-section">
-        <p class="form-section__label">Je devais</p>
-        <div class="form-group">${renderGroup(settledIOwe, currency)}</div>
-      </div>
+      <div class="form-group">${renderGroup(settled, currency)}</div>
     `;
 
     body.querySelectorAll("[data-debt-id]").forEach((row) => {
