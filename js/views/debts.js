@@ -336,7 +336,7 @@ export function openDebtDetail(debtId) {
       settleBtn.addEventListener("click", () => {
         confirmDialog({
           title: "Marquer cette dette comme réglée ?",
-          message: "Le solde restant sera mis à zéro. Utilisez plutôt « Remboursement » si vous voulez enregistrer un montant précis et son compte.",
+          message: "Un remboursement du solde restant sera enregistré dans l'historique, sans compte ni preuve associés. Utilisez plutôt « Remboursement » si vous voulez lier un compte ou une photo.",
           confirmLabel: "Marquer réglée",
           destructive: false,
           onConfirm: () => {

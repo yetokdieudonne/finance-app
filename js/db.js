@@ -290,9 +290,15 @@ export const Debts = {
     DB.update("debts", debtId, { remainingAmount, repayments });
     if (removed?.transactionId) DB.delete("transactions", removed.transactionId);
   },
-  /** Marque la dette comme intégralement réglée sans forcément passer par un remboursement
-   * chiffré (ex. dette annulée, réglée en dehors de l'app). */
-  markSettled: (id) => DB.update("debts", id, { remainingAmount: 0 }),
+  /** Marque la dette comme intégralement réglée en un tap, sans passer par le formulaire
+   * "Remboursement" (donc sans compte ni preuve associés) — mais enregistre quand même un
+   * remboursement pour tout le solde restant, pour que l'historique reste complet (montant,
+   * date, heure) même quand on règle en une seule fois. */
+  markSettled(id) {
+    const debt = DB.get("debts", id);
+    if (!debt || debt.remainingAmount <= 0) return;
+    Debts.addRepayment(id, { amount: debt.remainingAmount, note: "Marqué réglée en un tap" });
+  },
 
   /** Ajoute un montant supplémentaire dû à une dette existante (ex. la même personne emprunte
    * de nouveau) plutôt que de créer une dette séparée pour la même personne. Augmente le
