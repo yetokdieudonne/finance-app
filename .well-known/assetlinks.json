@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.yetokdieudonne.finance",
+    "sha256_cert_fingerprints": ["7B:2A:A9:1E:7B:7B:D8:A2:F0:33:B1:EC:D4:13:5A:10:33:DD:F4:01:63:84:74:EA:7F:1D:C1:F3:C8:03:C6:85"]
+  }
+}]
