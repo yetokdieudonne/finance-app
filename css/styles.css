@@ -429,6 +429,8 @@ a { color: var(--accent); text-decoration: none; }
 .btn--ghost { color: var(--accent); background: transparent; }
 .btn--secondary { background: var(--bg-fill); color: var(--text); }
 .btn--large { width: 100%; padding: 15px; font-size: 17px; }
+.btn--compact { padding: 9px 8px; font-size: 12.5px; gap: 4px; }
+.btn--compact svg { width: 14px; height: 14px; }
 .btn:disabled { opacity: 0.5; box-shadow: none; }
 
 /* ============ FAB ============ */

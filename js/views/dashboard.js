@@ -42,7 +42,6 @@ export function render(container) {
   const interval = { start: startOfMonth(new Date()), end: endOfMonthExclusive(new Date()) };
   const income = Calc.totalIncome(transactions, interval);
   const expense = Calc.totalExpense(transactions, interval);
-  const savings = income - expense;
   const total = Calc.totalBalance(accounts, transactions);
   const recent = transactions.slice(0, 5);
   const goalsCount = Goals.all().length;
@@ -68,8 +67,8 @@ export function render(container) {
             <div class="summary-card__value text-red">${formatCompactAmount(expense, primaryCurrency)}</div>
           </div>
           <div class="card">
-            <div class="summary-card__label"><span class="summary-card__icon" style="background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);">${icon("piggy-bank")}</span>Épargne</div>
-            <div class="summary-card__value text-accent">${formatCompactAmount(savings, primaryCurrency)}</div>
+            <div class="summary-card__label"><span class="summary-card__icon" style="background:color-mix(in srgb, var(--green) 18%, transparent);color:var(--green);">${icon("users")}</span>On me doit</div>
+            <div class="summary-card__value text-green">${formatCompactAmount(owedToMe, primaryCurrency)}</div>
           </div>
           <div class="card">
             <div class="summary-card__label"><span class="summary-card__icon" style="background:color-mix(in srgb, var(--red) 18%, transparent);color:var(--red);">${icon("users")}</span>Dette</div>
