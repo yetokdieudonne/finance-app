@@ -293,4 +293,25 @@ export const Debts = {
   /** Marque la dette comme intégralement réglée sans forcément passer par un remboursement
    * chiffré (ex. dette annulée, réglée en dehors de l'app). */
   markSettled: (id) => DB.update("debts", id, { remainingAmount: 0 }),
+
+  /** Ajoute un montant supplémentaire dû à une dette existante (ex. la même personne emprunte
+   * de nouveau) plutôt que de créer une dette séparée pour la même personne. Augmente le
+   * montant total ET le solde restant du même montant. */
+  addCharge(id, { amount, date, accountId, note, transactionId }) {
+    const debt = DB.get("debts", id);
+    if (!debt) return null;
+    const charge = { id: uuid(), amount, accountId: accountId || null, transactionId: transactionId || null, note: note || "", date: date || new Date().toISOString() };
+    const charges = [...(debt.charges || []), charge];
+    DB.update("debts", id, { amount: debt.amount + amount, remainingAmount: debt.remainingAmount + amount, charges });
+    return charge;
+  },
+  removeCharge(debtId, chargeId) {
+    const debt = DB.get("debts", debtId);
+    if (!debt) return;
+    const removed = (debt.charges || []).find((c) => c.id === chargeId);
+    if (!removed) return;
+    const charges = (debt.charges || []).filter((c) => c.id !== chargeId);
+    DB.update("debts", debtId, { amount: debt.amount - removed.amount, remainingAmount: debt.remainingAmount - removed.amount, charges });
+    if (removed.transactionId) DB.delete("transactions", removed.transactionId);
+  },
 };

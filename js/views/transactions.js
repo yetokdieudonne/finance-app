@@ -5,6 +5,7 @@ import { openFormSheet, openSheetCustom, confirmDialog, openActionSheet, openPic
 import { showToast } from "../components/toast.js";
 import { escapeHtml, compressImageFile } from "../util.js";
 import { UNCATEGORIZED } from "../calculator.js";
+import * as Calc from "../calculator.js";
 
 export const title = "Transactions";
 
@@ -248,11 +249,10 @@ export function openFilterSheet() {
       body.innerHTML = `
         <div class="form-section">
           <p class="form-section__label">Type</p>
-          <div class="type-toggle" id="f-type" style="display:grid;grid-template-columns:repeat(4,1fr);">
+          <div class="type-toggle" id="f-type" style="display:grid;grid-template-columns:repeat(3,1fr);">
             <button data-value="">Tous</button>
             <button data-value="expense">Dépenses</button>
             <button data-value="income">Revenus</button>
-            <button data-value="transfer">Virements</button>
           </div>
         </div>
         <div class="form-section">
@@ -506,6 +506,11 @@ export function openAddEditTransaction({ transaction, defaultType = "expense" })
       if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
       const accountId = selectedAccountId;
       if (!accountId) return sheetApi.showError("Veuillez sélectionner un compte.");
+      if (type === "expense") {
+        const account = Accounts.get(accountId);
+        const balance = Calc.balanceExcluding(account, Transactions.all(), transaction?.id || null);
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
       const rawTitle = document.getElementById("f-title").value.trim();
       const category = selectedCategoryId ? Categories.get(selectedCategoryId) : null;
       const resolvedTitle = rawTitle || category?.name || (type === "income" ? "Revenu" : "Dépense");

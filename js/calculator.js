@@ -33,6 +33,14 @@ export function totalBalance(accounts, transactions) {
   return accounts.reduce((sum, a) => sum + currentBalance(a, transactions), 0);
 }
 
+/** Solde d'un compte en ignorant une transaction donnée (utile pour vérifier qu'une
+ * modification ne fait pas passer le compte en négatif, sans compter deux fois l'ancien
+ * montant de la transaction en cours de modification). */
+export function balanceExcluding(account, transactions, excludeTransactionId) {
+  const filtered = excludeTransactionId ? transactions.filter((t) => t.id !== excludeTransactionId) : transactions;
+  return currentBalance(account, filtered);
+}
+
 export function totalIncome(transactions, interval) {
   return transactions
     .filter((t) => t.type === "income" && inInterval(t.date, interval))

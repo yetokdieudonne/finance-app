@@ -40,6 +40,7 @@ export function checkDebtNotifications() {
 export function openDebtsManager() {
   let bodyRef = null;
   let activeTab = "owedToMe";
+  let searchText = "";
   const unsubscribe = DB.onChange(() => { if (bodyRef) renderList(bodyRef); });
 
   openSheetCustom({
@@ -77,6 +78,15 @@ export function openDebtsManager() {
     const iOwe = Debts.byType("iOwe");
     const currency = Accounts.all()[0]?.currency || "fcfa";
 
+    const prevSearchInput = body.querySelector("#debt-search");
+    const hadFocus = document.activeElement === prevSearchInput;
+    const cursorPos = hadFocus ? prevSearchInput.selectionStart : null;
+
+    const q = searchText.trim().toLowerCase();
+    const visible = (activeTab === "owedToMe" ? owedToMe : iOwe).filter(
+      (d) => !q || d.personName.toLowerCase().includes(q)
+    );
+
     body.innerHTML = `
       <div class="summary-grid" style="margin-bottom:16px;">
         <div class="card">
@@ -94,11 +104,16 @@ export function openDebtsManager() {
       </div>
 
       <div class="chip-row" id="debt-tabs" style="margin-bottom:14px;">
-        <button class="chip ${activeTab === "owedToMe" ? "is-active" : ""}" data-tab="owedToMe">On me doit (${owedToMe.length})</button>
-        <button class="chip ${activeTab === "iOwe" ? "is-active" : ""}" data-tab="iOwe">Je dois (${iOwe.length})</button>
+        <button class="chip ${activeTab === "owedToMe" ? "is-active" : ""}" data-tab="owedToMe">Ce qu'on me doit (${owedToMe.length})</button>
+        <button class="chip ${activeTab === "iOwe" ? "is-active" : ""}" data-tab="iOwe">Ce que je dois (${iOwe.length})</button>
       </div>
 
-      <div class="form-group" id="debt-list">${renderGroup(activeTab === "owedToMe" ? owedToMe : iOwe, currency)}</div>
+      <div class="search-bar" style="margin:0 0 14px;">
+        <i data-lucide="search"></i>
+        <input id="debt-search" type="search" placeholder="Rechercher une personne" value="${escapeHtml(searchText)}" />
+      </div>
+
+      <div class="form-group" id="debt-list">${renderGroup(visible, currency)}</div>
     `;
 
     body.querySelectorAll("#debt-tabs [data-tab]").forEach((btn) => {
@@ -107,6 +122,16 @@ export function openDebtsManager() {
         renderList(body);
       });
     });
+
+    const searchInput = body.querySelector("#debt-search");
+    searchInput.addEventListener("input", () => {
+      searchText = searchInput.value;
+      renderList(body);
+    });
+    if (hadFocus) {
+      searchInput.focus();
+      searchInput.setSelectionRange(cursorPos, cursorPos);
+    }
 
     body.querySelectorAll("[data-debt-id]").forEach((row) => {
       row.addEventListener("click", (e) => {
@@ -162,7 +187,10 @@ export function openDebtDetail(debtId) {
     if (!debt) { sheetApi.close(); return; }
     const currency = Accounts.all()[0]?.currency || "fcfa";
     const { status } = Calc.debtStatus(debt);
-    const repayments = [...(debt.repayments || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const movements = [
+      ...(debt.repayments || []).map((r) => ({ ...r, kind: "repayment" })),
+      ...(debt.charges || []).map((c) => ({ ...c, kind: "charge" })),
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     body.innerHTML = `
       <div class="text-center" style="margin-bottom:16px;">
@@ -173,51 +201,67 @@ export function openDebtDetail(debtId) {
         ${debt.reason ? `<p style="color:var(--text-secondary);margin-top:10px;font-size:14px;">${escapeHtml(debt.reason)}</p>` : ""}
       </div>
 
-      ${status !== "settled" ? `
       <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button class="btn btn--secondary" style="flex:1;" id="debt-add-charge">${icon("trending-up")}Nouvelle dette</button>
+        ${status !== "settled" ? `
         <button class="btn btn--primary" style="flex:1;" id="debt-add-repayment">${icon("plus")}Remboursement</button>
-        <button class="btn btn--secondary" style="flex:1;" id="debt-mark-settled">${icon("check-circle")}Marquer réglée</button>
-      </div>` : ""}
+        <button class="btn btn--secondary" style="flex:1;" id="debt-mark-settled">${icon("check-circle")}Réglée</button>` : ""}
+      </div>
 
       <p class="section-title">Historique</p>
       <div class="card" id="debt-history" style="padding:0 16px;"></div>
     `;
 
     const historyEl = body.querySelector("#debt-history");
-    if (repayments.length === 0) {
+    if (movements.length === 0) {
       historyEl.style.padding = "0";
-      historyEl.innerHTML = `<div class="empty-state">${icon("inbox")}<h3>Aucun remboursement</h3><p>Enregistrez un remboursement dès qu'un montant est versé.</p></div>`;
+      historyEl.innerHTML = `<div class="empty-state">${icon("inbox")}<h3>Aucun mouvement</h3><p>Enregistrez un remboursement ou un nouveau montant dû dès qu'il y en a un.</p></div>`;
     } else {
-      historyEl.innerHTML = repayments
-        .map((r, i) => `
-        <div class="tx-row" data-repayment-id="${r.id}" style="${i < repayments.length - 1 ? "border-bottom:1px solid var(--separator);" : ""}">
-          <span class="tx-row__icon" style="background:var(--accent)2e;color:var(--accent);">${icon("arrow-left-right")}</span>
+      historyEl.innerHTML = movements
+        .map((m, i) => {
+          const isCharge = m.kind === "charge";
+          return `
+        <div class="tx-row" data-movement-id="${m.id}" data-movement-kind="${m.kind}" style="${i < movements.length - 1 ? "border-bottom:1px solid var(--separator);" : ""}">
+          <span class="tx-row__icon" style="background:${isCharge ? "var(--orange)" : "var(--accent)"}2e;color:${isCharge ? "var(--orange)" : "var(--accent)"};">${icon(isCharge ? "trending-up" : "arrow-left-right")}</span>
           <span class="tx-row__body">
-            <div class="tx-row__title">Remboursement${r.note ? " · " + escapeHtml(r.note) : ""}</div>
-            <div class="tx-row__meta">${r.accountId ? escapeHtml(Accounts.get(r.accountId)?.name || "") : "Sans compte"}</div>
+            <div class="tx-row__title">${isCharge ? "Nouvelle dette" : "Remboursement"}${m.note ? " · " + escapeHtml(m.note) : ""}</div>
+            <div class="tx-row__meta">${m.accountId ? escapeHtml(Accounts.get(m.accountId)?.name || "") : "Sans compte"}</div>
           </span>
           <span class="tx-row__amounts">
-            <div class="tx-row__amount text-accent">${formatAmount(r.amount, currency)}</div>
-            <div class="tx-row__date">${mediumDateString(r.date)}</div>
+            <div class="tx-row__amount" style="color:${isCharge ? "var(--orange)" : "var(--accent)"};">${formatAmount(m.amount, currency)}</div>
+            <div class="tx-row__date">${mediumDateString(m.date)}</div>
           </span>
-          <button class="icon-btn" data-more-repayment="${r.id}" style="margin-left:4px;">${icon("more-vertical")}</button>
-        </div>`)
+          <button class="icon-btn" data-more-movement="${m.id}" style="margin-left:4px;">${icon("more-vertical")}</button>
+        </div>`;
+        })
         .join("");
 
-      historyEl.querySelectorAll("[data-more-repayment]").forEach((btn) => {
+      historyEl.querySelectorAll("[data-more-movement]").forEach((btn) => {
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const repaymentId = btn.dataset.moreRepayment;
-          openActionSheet({
-            actions: [
-              { label: "Modifier", icon: "pencil", onClick: () => openEditRepayment({ debt, repayment: debt.repayments.find((r) => r.id === repaymentId) }) },
-              { label: "Supprimer", icon: "trash-2", destructive: true, onClick: () => confirmDeleteRepayment(debt.id, repaymentId) },
-            ],
-          });
+          const row = btn.closest("[data-movement-id]");
+          const movementId = row.dataset.movementId;
+          const kind = row.dataset.movementKind;
+          if (kind === "repayment") {
+            openActionSheet({
+              actions: [
+                { label: "Modifier", icon: "pencil", onClick: () => openEditRepayment({ debt, repayment: debt.repayments.find((r) => r.id === movementId) }) },
+                { label: "Supprimer", icon: "trash-2", destructive: true, onClick: () => confirmDeleteRepayment(debt.id, movementId) },
+              ],
+            });
+          } else {
+            openActionSheet({
+              actions: [
+                { label: "Supprimer", icon: "trash-2", destructive: true, onClick: () => confirmDeleteCharge(debt.id, movementId) },
+              ],
+            });
+          }
         });
       });
     }
 
+    const addChargeBtn = body.querySelector("#debt-add-charge");
+    if (addChargeBtn) addChargeBtn.addEventListener("click", () => openChargeForm({ debt }));
     const addBtn = body.querySelector("#debt-add-repayment");
     if (addBtn) addBtn.addEventListener("click", () => openRepaymentForm({ debt }));
     const settleBtn = body.querySelector("#debt-mark-settled");
@@ -277,6 +321,101 @@ function openEditRepayment({ debt, repayment }) {
       if (repayment.transactionId) Transactions.update(repayment.transactionId, { amount, note });
 
       showToast("Remboursement modifié");
+      sheetApi.close();
+    },
+  });
+}
+
+function confirmDeleteCharge(debtId, chargeId) {
+  confirmDialog({
+    title: "Supprimer ce montant ?",
+    message: "S'il était lié à un compte, la transaction correspondante sera aussi supprimée. Cette action est irréversible.",
+    onConfirm: () => {
+      Debts.removeCharge(debtId, chargeId);
+      showToast("Montant supprimé");
+    },
+  });
+}
+
+// ============ Nouvelle dette sur une dette existante ============
+// Pour la même personne qui doit à nouveau (ou à qui on doit encore), plutôt que de créer une
+// dette séparée : augmente le montant total et le solde restant de la dette existante.
+function openChargeForm({ debt }) {
+  const accounts = Accounts.all();
+  let selectedAccountId = null;
+
+  openFormSheet({
+    title: `Nouvelle dette — ${debt.personName}`,
+    saveLabel: "Ajouter",
+    build(body) {
+      body.innerHTML = `
+        <div class="amount-input-wrap">
+          <input id="f-amount" type="text" inputmode="decimal" placeholder="0" />
+          <span class="amount-input-wrap__currency">${CURRENCIES[accounts[0]?.currency || "fcfa"].symbol}</span>
+        </div>
+        <div class="form-section">
+          <div class="form-group">
+            <div class="form-row"><span class="form-row__label">Date</span><input id="f-date" type="date" value="${dateInputValue(new Date())}" /></div>
+            <div class="form-row" id="f-account-row" style="cursor:pointer;">
+              <span class="form-row__label">${debt.type === "owedToMe" ? "Déduire du compte" : "Créditer le compte"} (optionnel)</span>
+              <span style="display:flex;align-items:center;gap:6px;color:var(--text-secondary);min-width:0;">
+                <span id="f-account-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Aucun</span>
+                <span class="form-row__chevron">${icon("chevron-down")}</span>
+              </span>
+            </div>
+          </div>
+          <p class="form-section__footer">${debt.type === "owedToMe" ? "Si vous sélectionnez un compte, le montant en sera déduit (vous prêtez à nouveau)." : "Si vous sélectionnez un compte, le montant lui sera crédité (on vous prête à nouveau)."}</p>
+        </div>
+        <div class="form-section">
+          <div class="form-group"><div class="form-row"><textarea id="f-note" rows="2" placeholder="Note (optionnel)"></textarea></div></div>
+        </div>
+      `;
+
+      const accountLabel = body.querySelector("#f-account-label");
+      body.querySelector("#f-account-row").addEventListener("click", () => {
+        openPickerSheet({
+          title: "Compte",
+          selectedValue: selectedAccountId,
+          options: [{ value: null, label: "Aucun" }, ...accounts.map((a) => ({ value: a.id, label: a.name, icon: a.icon, color: a.colorHex }))],
+          onSelect: (value) => {
+            selectedAccountId = value;
+            accountLabel.textContent = value ? Accounts.get(value)?.name : "Aucun";
+          },
+        });
+      });
+
+      setTimeout(() => body.querySelector("#f-amount")?.focus(), 250);
+    },
+    onSave(sheetApi) {
+      sheetApi.clearError();
+      const amount = parseAmount(document.getElementById("f-amount").value);
+      if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
+      const date = fromDateInputValue(document.getElementById("f-date").value).toISOString();
+      if (selectedAccountId && debt.type === "owedToMe") {
+        const account = Accounts.get(selectedAccountId);
+        const balance = Calc.currentBalance(account, Transactions.all());
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
+      const note = document.getElementById("f-note").value.trim();
+
+      let transactionId = null;
+      if (selectedAccountId) {
+        const isExpense = debt.type === "owedToMe"; // je prête à nouveau => argent sortant
+        const category = ensureDebtCategory(isExpense ? "expense" : "income");
+        const transaction = Transactions.create({
+          amount,
+          type: isExpense ? "expense" : "income",
+          title: isExpense ? `Prêt à ${debt.personName}` : `Emprunt de ${debt.personName}`,
+          note,
+          date,
+          categoryId: category.id,
+          accountId: selectedAccountId,
+        });
+        transactionId = transaction.id;
+      }
+
+      Debts.addCharge(debt.id, { amount, date, accountId: selectedAccountId, note, transactionId });
+      showToast("Nouvelle dette ajoutée");
       sheetApi.close();
     },
   });
@@ -375,6 +514,12 @@ export function openAddEditDebt({ debt, defaultType = "owedToMe" }) {
         return;
       }
 
+      if (selectedAccountId && type === "owedToMe") {
+        const account = Accounts.get(selectedAccountId);
+        const balance = Calc.currentBalance(account, Transactions.all());
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
+
       let transactionId = null;
       if (selectedAccountId) {
         const category = ensureDebtCategory(type === "owedToMe" ? "expense" : "income");
@@ -448,6 +593,11 @@ function openRepaymentForm({ debt }) {
       sheetApi.clearError();
       const amount = parseAmount(document.getElementById("f-amount").value);
       if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
+      if (selectedAccountId && debt.type === "iOwe") {
+        const account = Accounts.get(selectedAccountId);
+        const balance = Calc.currentBalance(account, Transactions.all());
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
       const note = document.getElementById("f-note").value.trim();
 
       let transactionId = null;

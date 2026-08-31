@@ -199,6 +199,10 @@ function openAdjustAccountBalance({ account, mode }) {
       sheetApi.clearError();
       const amount = parseAmount(document.getElementById("f-amount").value);
       if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
+      if (!isAdd) {
+        const balance = Calc.currentBalance(account, Transactions.all());
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
       const note = document.getElementById("f-note").value.trim();
       const category = selectedCategoryId ? Categories.get(selectedCategoryId) : null;
       const title = note || category?.name || (isAdd ? "Ajout au compte" : "Déduction du compte");

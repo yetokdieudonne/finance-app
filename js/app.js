@@ -103,7 +103,6 @@ document.getElementById("fab-add").addEventListener("click", () => {
     actions: [
       { label: "Ajouter une dépense", icon: "arrow-up-circle", onClick: () => openAddEditTransaction({ defaultType: "expense" }) },
       { label: "Ajouter un revenu", icon: "arrow-down-circle", onClick: () => openAddEditTransaction({ defaultType: "income" }) },
-      { label: "Transférer de l'argent", icon: "arrow-left-right", onClick: () => TransactionsView.openTransferForm() },
     ],
   });
 });

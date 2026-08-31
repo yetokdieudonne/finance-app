@@ -83,6 +83,14 @@ function markAsSettled(id) {
     return;
   }
   const income = isIncome(charge);
+  if (!income) {
+    const account = Accounts.get(charge.accountId);
+    const balance = Calc.currentBalance(account, Transactions.all());
+    if (balance - charge.amount < 0) {
+      showToast(`Solde insuffisant sur « ${account.name} » pour marquer cette charge payée.`);
+      return;
+    }
+  }
   const { periodKey } = Calc.recurringExpenseStatus(charge);
   const transaction = Transactions.create({
     amount: charge.amount,

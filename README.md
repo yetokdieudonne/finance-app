@@ -55,9 +55,11 @@ et pilotables depuis Windows.
 - Comptes : liste avec ajout de nouveaux comptes et 10 dernières transactions (tous comptes) en
   bas de la page ; détail d'un compte avec boutons **Ajouter / Déduire** un montant en un tap
   (sans passer par le formulaire complet) et historique complet des opérations. Solde recalculé
-  automatiquement.
-- Transactions : ajout rapide (dépense / revenu / virement), historique groupé par jour,
-  recherche, filtres (compte, catégorie, type, période), édition, suppression.
+  automatiquement, et **ne peut jamais devenir négatif** : toute opération qui ferait passer un
+  compte sous zéro (dépense, prêt, remboursement, épargne, charge fixe) est bloquée avec un
+  message clair indiquant le montant disponible.
+- Transactions : ajout rapide (dépense / revenu), historique groupé par jour, recherche, filtres
+  (compte, catégorie, type, période), édition, suppression. Pas de virement entre comptes.
 - Catégories par défaut + création / édition / suppression, choix d'icône et de couleur.
 - Budgets mensuels par catégorie avec barre de progression, alertes visuelles **et
   notification** à 70% et en cas de dépassement (une fois par palier). Un mois vide propose de
@@ -81,10 +83,14 @@ et pilotables depuis Windows.
   d'épargne progressive vers un montant) — un simple prévisionnel additif. Accessible directement
   depuis la barre du bas (a remplacé l'onglet Budgets, désormais dans le menu latéral).
 - **Dettes** : ce que des tiers vous doivent et ce que vous devez, par personne, avec montant,
-  échéance optionnelle et raison. Chaque remboursement (partiel ou total) est enregistré avec
-  historique modifiable/supprimable, et peut créditer/débiter un compte réel. Le bloc "Dettes"
-  de l'accueil résume les deux totaux, et une **notification** signale une dette qui passe en
-  retard (une fois, ré-armée si l'échéance est repoussée).
+  échéance optionnelle et raison. Deux onglets séparent « Ce qu'on me doit » et « Ce que je
+  dois », avec une barre de recherche par nom. Chaque remboursement (partiel ou total) est
+  enregistré avec historique modifiable/supprimable, et peut créditer/débiter un compte réel.
+  Si la même personne emprunte à nouveau (ou vous prête encore), **« Nouvelle dette »** ajoute le
+  montant supplémentaire (avec sa propre date) directement sur la dette existante plutôt que
+  d'en créer une séparée. Le bloc "Dettes" de l'accueil résume les deux totaux, et une
+  **notification** signale une dette qui passe en retard (une fois, ré-armée si l'échéance est
+  repoussée).
 - Statistiques : donut, barres, courbe, sélecteur de période, totaux et moyennes, **comparaison
   avec la période équivalente précédente** (revenus/dépenses/épargne, en %) pour chaque période
   sauf "Personnalisée".

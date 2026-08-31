@@ -441,6 +441,11 @@ export function openContributeForm({ goal, isWithdrawal = false }) {
       const amount = parseAmount(document.getElementById("f-amount").value);
       if (amount === null || amount <= 0) return sheetApi.showError("Veuillez saisir un montant valide, supérieur à zéro.");
       if (isWithdrawal && amount > goal.currentAmount) return sheetApi.showError("Le montant retiré ne peut pas dépasser le solde de l'objectif.");
+      if (!isWithdrawal && selectedAccountId) {
+        const account = Accounts.get(selectedAccountId);
+        const balance = Calc.currentBalance(account, Transactions.all());
+        if (balance - amount < 0) return sheetApi.showError(`Solde insuffisant sur « ${account.name} » (disponible : ${formatAmount(balance, account.currency)}).`);
+      }
       const note = document.getElementById("f-note").value.trim();
 
       let transactionId = null;
