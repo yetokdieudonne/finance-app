@@ -122,11 +122,13 @@ bord reste disponible indépendamment des notifications.
 
 ## Compte obligatoire
 
-Au tout premier lancement, l'app demande de créer un compte (nom, prénom, adresse mail, mot de
-passe d'au moins 6 caractères) avant de laisser accéder au tableau de bord — c'est le même compte
-que celui utilisé pour la synchronisation multi-appareils (voir ci-dessous), pas un système
-séparé. Un lien « Vous avez déjà un compte ? » bascule vers un formulaire de connexion (adresse
-mail + mot de passe uniquement). Une fois connecté·e, la session est mémorisée : elle n'est pas
+Au tout premier lancement, l'app demande de se connecter (adresse mail + mot de passe) avant de
+laisser accéder au tableau de bord — c'est le même compte que celui utilisé pour la
+synchronisation multi-appareils (voir ci-dessous), pas un système séparé. **L'inscription en
+libre-service est désactivée** : la page ne propose que la connexion, jamais la création de
+compte. Un compte se crée uniquement côté admin, via *Firebase Console → Authentication → Add
+user* (adresse mail + mot de passe), puis ces identifiants sont transmis à la personne
+concernée pour qu'elle se connecte. Une fois connecté·e, la session est mémorisée : elle n'est pas
 redemandée aux lancements suivants (y compris hors-ligne, y compris après avoir fermé l'app),
 seule une déconnexion explicite (Paramètres → Synchronisation → Se déconnecter) la redemande. Se
 connecter à un compte déjà utilisé sur un autre appareil propose la récupération des données
@@ -136,6 +138,12 @@ même compte, sans stockage local séparé. Une photo de profil optionnelle (men
 l'avatar) fait partie des données synchronisées (voir ci-dessous), donc également visible sur tout
 appareil connecté au même compte. Ce compte est distinct du verrouillage PIN/biométrique optionnel
 (Paramètres → Sécurité), qui reste une couche de protection quotidienne facultative par-dessus.
+
+**Note sur l'inscription désactivée** : ça retire le bouton/formulaire de l'interface, ce qui
+suffit à empêcher un visiteur normal de créer un compte lui-même. Ce n'est pas un verrou côté
+Firebase à proprement parler — quelqu'un de très technique pourrait toujours appeler le SDK
+Firebase directement depuis la console du navigateur. Un blocage réellement au niveau serveur
+nécessiterait une Cloud Function (`beforeCreate`), qui exige le plan payant Blaze.
 
 ## Stockage des données
 

@@ -259,8 +259,6 @@ const gateRowLastname = document.getElementById("gate-row-lastname");
 const gateRowFirstname = document.getElementById("gate-row-firstname");
 const gateRowEmail = document.getElementById("gate-row-email");
 const gateRowPassword = document.getElementById("gate-row-password");
-const gateLastnameInput = document.getElementById("gate-lastname");
-const gateFirstnameInput = document.getElementById("gate-firstname");
 const gateEmailInput = document.getElementById("gate-email");
 const gatePwInput = document.getElementById("gate-pw");
 const gatePwToggleBtn = document.getElementById("gate-pw-toggle");
@@ -268,10 +266,10 @@ const gateError = document.getElementById("gate-error");
 const gateErrorText = document.getElementById("gate-error-text");
 const gateContinueBtn = document.getElementById("gate-continue");
 const gateContinueLabel = document.getElementById("gate-continue-label");
-const gateToggleHint = document.getElementById("gate-toggle-hint");
 const gateToggleModeBtn = document.getElementById("gate-toggle-mode");
 
-let gateMode = "signup"; // "signup" | "login"
+// La création de compte se fait désormais uniquement côté admin (Firebase Console →
+// Authentication → Add user) : la page ne propose plus que la connexion, jamais l'inscription.
 let gateOffline = false;
 
 function setGateLoading(isLoading, label) {
@@ -294,29 +292,20 @@ function setGateOfflineState() {
 
 function setGateFormState() {
   gateOffline = false;
-  const isSignup = gateMode === "signup";
-  gateTitle.textContent = isSignup ? "Créez votre compte" : "Connectez-vous";
-  gateSubtitle.textContent = "Un compte protège vos données et permet de les retrouver sur un autre appareil.";
-  gateRowLastname.hidden = !isSignup;
-  gateRowFirstname.hidden = !isSignup;
+  gateTitle.textContent = "Connectez-vous";
+  gateSubtitle.textContent = "Utilisez les identifiants qui vous ont été transmis pour accéder à votre compte.";
+  gateRowLastname.hidden = true;
+  gateRowFirstname.hidden = true;
   gateRowEmail.hidden = false;
   gateRowPassword.hidden = false;
-  gateContinueLabel.textContent = isSignup ? "Créer mon compte" : "Se connecter";
-  gateToggleModeBtn.parentElement.hidden = false;
-  gateToggleHint.textContent = isSignup ? "Vous avez déjà un compte ?" : "Pas encore de compte ?";
-  gateToggleModeBtn.textContent = isSignup ? "Se connecter" : "Créer un compte";
+  gateContinueLabel.textContent = "Se connecter";
+  gateToggleModeBtn.parentElement.hidden = true;
 }
 
 function runAccountGate() {
   return new Promise((resolve) => {
     accountGate.hidden = false;
     renderIcons(accountGate);
-
-    gateToggleModeBtn.onclick = () => {
-      gateMode = gateMode === "signup" ? "login" : "signup";
-      gateError.hidden = true;
-      if (!gateOffline) setGateFormState();
-    };
 
     gatePwToggleBtn.onclick = () => {
       const showing = gatePwInput.type === "text";
@@ -359,16 +348,9 @@ function runAccountGate() {
     async function submit(Sync) {
       gateError.hidden = true;
       const originalLabel = gateContinueLabel.textContent;
-      setGateLoading(true, gateMode === "signup" ? "Création..." : "Connexion...");
+      setGateLoading(true, "Connexion...");
       try {
-        const result = gateMode === "signup"
-          ? await Sync.signUp({
-              firstName: gateFirstnameInput.value,
-              lastName: gateLastnameInput.value,
-              email: gateEmailInput.value,
-              password: gatePwInput.value,
-            })
-          : await Sync.logIn(gateEmailInput.value, gatePwInput.value);
+        const result = await Sync.logIn(gateEmailInput.value, gatePwInput.value);
         if (result.needsReconciliation) {
           promptGateReconciliation(Sync, result, () => {
             accountGate.hidden = true;
