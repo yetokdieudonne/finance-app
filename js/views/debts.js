@@ -201,12 +201,12 @@ export function openDebtDetail(debtId) {
         ${debt.reason ? `<p style="color:var(--text-secondary);margin-top:10px;font-size:14px;">${escapeHtml(debt.reason)}</p>` : ""}
       </div>
 
-      <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <div style="display:flex;gap:10px;margin-bottom:${status !== "settled" ? "10px" : "20px"};">
         <button class="btn btn--secondary" style="flex:1;" id="debt-add-charge">${icon("trending-up")}Nouvelle dette</button>
-        ${status !== "settled" ? `
-        <button class="btn btn--primary" style="flex:1;" id="debt-add-repayment">${icon("plus")}Remboursement</button>
-        <button class="btn btn--secondary" style="flex:1;" id="debt-mark-settled">${icon("check-circle")}Réglée</button>` : ""}
+        ${status !== "settled" ? `<button class="btn btn--primary" style="flex:1;" id="debt-add-repayment">${icon("plus")}Remboursement</button>` : ""}
       </div>
+      ${status !== "settled" ? `
+      <button class="btn btn--secondary" style="width:100%;margin-bottom:20px;" id="debt-mark-settled">${icon("check-circle")}Marquer réglée</button>` : ""}
 
       <p class="section-title">Historique</p>
       <div class="card" id="debt-history" style="padding:0 16px;"></div>
