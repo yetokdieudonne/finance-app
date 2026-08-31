@@ -98,6 +98,8 @@ et pilotables depuis Windows.
 - Statistiques : donut, barres, courbe, sélecteur de période, totaux et moyennes, **comparaison
   avec la période équivalente précédente** (revenus/dépenses/épargne, en %) pour chaque période
   sauf "Personnalisée".
+- **Guide** (menu latéral) : explique à quoi sert chaque fonctionnalité et comment s'en servir,
+  en accordéon par thème avec recherche par mot-clé.
 - **Aide** (menu latéral) : contact direct (WhatsApp, email) pour signaler un bug, proposer une
   fonctionnalité ou poser une question.
 - Sécurité : verrouillage par code PIN à 4 chiffres et, si l'appareil le permet (Face ID /
