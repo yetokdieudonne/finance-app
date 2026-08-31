@@ -1,6 +1,6 @@
 // Service worker : cache l'app shell pour un fonctionnement 100% hors-ligne.
 // Incrémenter CACHE_VERSION à chaque déploiement pour invalider l'ancien cache.
-const CACHE_VERSION = "finance-v38";
+const CACHE_VERSION = "finance-v39";
 
 const APP_SHELL = [
   "./",
@@ -34,6 +34,7 @@ const APP_SHELL = [
   "./js/views/goals.js",
   "./js/views/projects.js",
   "./js/views/debts.js",
+  "./js/views/help.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon-180.png",

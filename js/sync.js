@@ -25,6 +25,8 @@ import {
   onSnapshot,
   serverTimestamp,
   increment,
+  collection,
+  addDoc,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { DB } from "./db.js";
 import { Profile } from "./profile.js";
@@ -267,6 +269,27 @@ export const Sync = {
   async syncNow() {
     if (!auth.currentUser) return;
     await pushToCloud();
+  },
+
+  /** Envoie un message au support (bug, suggestion, question) depuis la page Aide. Écrit dans
+   * la même collection Firestore "questions" que le formulaire de contact du site vitrine, pour
+   * que l'admin retrouve tout au même endroit. Nom/email pris du compte connecté : pas besoin
+   * de les redemander. */
+  async submitHelpMessage({ type, message }) {
+    const user = auth.currentUser;
+    const cleanMessage = (message || "").trim();
+    if (!cleanMessage) throw new Error("Le message est requis.");
+    if (!user) throw new Error("Vous devez être connecté·e.");
+
+    await addDoc(collection(db, "questions"), {
+      name: user.displayName || "",
+      email: user.email || "",
+      type: type || "question",
+      message: cleanMessage,
+      status: "open",
+      source: "app",
+      createdAt: serverTimestamp(),
+    });
   },
 };
 

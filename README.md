@@ -88,6 +88,9 @@ et pilotables depuis Windows.
 - Statistiques : donut, barres, courbe, sélecteur de période, totaux et moyennes, **comparaison
   avec la période équivalente précédente** (revenus/dépenses/épargne, en %) pour chaque période
   sauf "Personnalisée".
+- **Aide** (menu latéral) : formulaire pour signaler un bug, proposer une fonctionnalité ou poser
+  une question, envoyé directement à l'administrateur (nom/email pris du compte connecté, pas de
+  ressaisie).
 - Sécurité : verrouillage par code PIN à 4 chiffres et, si l'appareil le permet (Face ID /
   Touch ID / Windows Hello), déverrouillage biométrique via l'API **WebAuthn** du navigateur.
 - Paramètres : apparence (système / clair / sombre), notifications, export JSON complet,

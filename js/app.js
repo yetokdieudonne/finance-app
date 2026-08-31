@@ -20,6 +20,7 @@ import { openAddEditTransaction } from "./views/transactions.js";
 import { openAccountsManager } from "./views/accounts.js";
 import { openCategoriesManager } from "./views/categories.js";
 import { openGoalsManager } from "./views/goals.js";
+import { openHelpPage } from "./views/help.js";
 
 const VIEWS = {
   dashboard: DashboardView,
@@ -134,6 +135,7 @@ function openMainDrawer() {
           <button class="drawer__item" data-item="categories"><i data-lucide="tag"></i>Catégories</button>
           <button class="drawer__item" data-item="recurring"><i data-lucide="repeat"></i>Transactions récurrentes</button>
           <p class="drawer__section-label">Application</p>
+          <button class="drawer__item" data-item="help"><i data-lucide="life-buoy"></i>Aide</button>
           <button class="drawer__item" data-item="settings"><i data-lucide="settings"></i>Paramètres</button>
           <button class="drawer__item drawer__item--danger" data-item="disconnect"><i data-lucide="log-out"></i>Se déconnecter</button>
         </div>
@@ -148,6 +150,7 @@ function openMainDrawer() {
         goals: openGoalsManager,
         budgets: openBudgetsManager,
         debts: openDebtsManager,
+        help: openHelpPage,
         settings: () => switchTab("settings"),
         disconnect: () => handleDisconnectFromDrawer(),
       };
