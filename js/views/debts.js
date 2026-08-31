@@ -99,8 +99,9 @@ export function openDebtsManager() {
         </div>
       </div>
 
-      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-        <button class="btn btn--secondary" id="debt-add-btn">${icon("plus")}Ajouter une dette</button>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <button class="btn btn--secondary" style="flex:1;" id="debt-add-owedtome">${icon("plus")}On me doit</button>
+        <button class="btn btn--secondary" style="flex:1;" id="debt-add-iowe">${icon("minus")}Je dois</button>
       </div>
 
       <div class="chip-row" id="debt-tabs" style="margin-bottom:14px;">
@@ -153,7 +154,8 @@ export function openDebtsManager() {
       });
     });
 
-    body.querySelector("#debt-add-btn").addEventListener("click", () => openAddEditDebt({}));
+    body.querySelector("#debt-add-owedtome").addEventListener("click", () => openAddEditDebt({ defaultType: "owedToMe" }));
+    body.querySelector("#debt-add-iowe").addEventListener("click", () => openAddEditDebt({ defaultType: "iOwe" }));
     renderIcons(body);
   }
 }
@@ -428,13 +430,14 @@ export function openAddEditDebt({ debt, defaultType = "owedToMe" }) {
   let selectedAccountId = null;
 
   openFormSheet({
-    title: debt ? "Modifier la dette" : "Nouvelle dette",
+    title: debt ? "Modifier la dette" : type === "owedToMe" ? "On me doit" : "Je dois",
     build(body) {
       body.innerHTML = `
+        ${debt ? `
         <div class="type-toggle" id="f-type" style="margin-bottom:16px;">
           <button data-value="owedToMe">On me doit</button>
           <button data-value="iOwe">Je dois</button>
-        </div>
+        </div>` : ""}
 
         <div class="form-section">
           <p class="form-section__label">Détails</p>
@@ -462,7 +465,7 @@ export function openAddEditDebt({ debt, defaultType = "owedToMe" }) {
 
       const typeToggle = body.querySelector("#f-type");
       function refreshTypeToggle() {
-        typeToggle.querySelectorAll("button").forEach((b) => b.classList.toggle("is-active", b.dataset.value === type));
+        if (typeToggle) typeToggle.querySelectorAll("button").forEach((b) => b.classList.toggle("is-active", b.dataset.value === type));
         const hint = body.querySelector("#f-account-hint");
         if (hint) {
           hint.textContent = type === "owedToMe"
@@ -471,10 +474,10 @@ export function openAddEditDebt({ debt, defaultType = "owedToMe" }) {
         }
       }
       refreshTypeToggle();
-      if (debt) {
+      if (debt && typeToggle) {
         typeToggle.style.opacity = "0.5";
         typeToggle.style.pointerEvents = "none";
-      } else {
+      } else if (typeToggle) {
         typeToggle.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { type = b.dataset.value; refreshTypeToggle(); }));
       }
 
