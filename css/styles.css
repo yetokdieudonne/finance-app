@@ -426,6 +426,8 @@ a { color: var(--accent); text-decoration: none; }
 .btn--primary:active { opacity: 0.88; transform: scale(0.99); }
 .btn--danger { background: var(--red); color: white; box-shadow: 0 4px 14px rgba(255, 59, 48, 0.28); }
 .btn--danger:active { opacity: 0.88; transform: scale(0.99); }
+.btn--success { background: var(--green); color: white; box-shadow: 0 4px 14px rgba(52, 199, 89, 0.28); }
+.btn--success:active { opacity: 0.88; transform: scale(0.99); }
 .btn--ghost { color: var(--accent); background: transparent; }
 .btn--secondary { background: var(--bg-fill); color: var(--text); }
 .btn--large { width: 100%; padding: 15px; font-size: 17px; }

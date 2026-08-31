@@ -264,10 +264,10 @@ export const Debts = {
   update: (id, patch) => DB.update("debts", id, patch),
   remove: (id) => DB.delete("debts", id),
   /** amount toujours positif : réduit le solde restant. */
-  addRepayment(id, { amount, accountId, note, transactionId }) {
+  addRepayment(id, { amount, accountId, note, transactionId, photo }) {
     const debt = DB.get("debts", id);
     if (!debt) return null;
-    const repayment = { id: uuid(), amount, accountId: accountId || null, transactionId: transactionId || null, note: note || "", date: new Date().toISOString() };
+    const repayment = { id: uuid(), amount, accountId: accountId || null, transactionId: transactionId || null, note: note || "", photo: photo || null, date: new Date().toISOString() };
     const repayments = [...(debt.repayments || []), repayment];
     const remainingAmount = debt.remainingAmount - amount;
     DB.update("debts", id, { remainingAmount, repayments });

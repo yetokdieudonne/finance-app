@@ -83,14 +83,18 @@ et pilotables depuis Windows.
   d'épargne progressive vers un montant) — un simple prévisionnel additif. Accessible directement
   depuis la barre du bas (a remplacé l'onglet Budgets, désormais dans le menu latéral).
 - **Dettes** : ce que des tiers vous doivent et ce que vous devez, par personne, avec montant,
-  échéance optionnelle et raison. Deux onglets séparent « Ce qu'on me doit » et « Ce que je
-  dois », avec une barre de recherche par nom. Chaque remboursement (partiel ou total) est
-  enregistré avec historique modifiable/supprimable, et peut créditer/débiter un compte réel.
-  Si la même personne emprunte à nouveau (ou vous prête encore), **« Nouvelle dette »** ajoute le
-  montant supplémentaire (avec sa propre date) directement sur la dette existante plutôt que
-  d'en créer une séparée. Le bloc "Dettes" de l'accueil résume les deux totaux, et une
-  **notification** signale une dette qui passe en retard (une fois, ré-armée si l'échéance est
-  repoussée).
+  échéance optionnelle et raison. Deux boutons dédiés (« On me doit », vert · « Je dois »,
+  rouge) créent directement le bon type. Deux onglets séparent « Ce qu'on me doit » et « Ce que
+  je dois », avec une barre de recherche par nom. Une dette entièrement réglée quitte
+  automatiquement la liste principale — elle reste consultable via **Historique**. Chaque
+  remboursement (partiel ou total) est enregistré avec date et heure, historique
+  modifiable/supprimable, une **photo optionnelle en preuve** (appareil photo ou galerie), et
+  peut créditer/débiter un compte réel. Si la même personne emprunte à nouveau (ou vous prête
+  encore), **« Nouvelle dette »** ajoute le montant supplémentaire (avec sa propre date)
+  directement sur la dette existante plutôt que d'en créer une séparée. La date/heure de
+  création de la dette est affichée sur sa page de détail. Le bloc "Dettes" de l'accueil résume
+  les deux totaux, et une **notification** signale une dette qui passe en retard (une fois,
+  ré-armée si l'échéance est repoussée).
 - Statistiques : donut, barres, courbe, sélecteur de période, totaux et moyennes, **comparaison
   avec la période équivalente précédente** (revenus/dépenses/épargne, en %) pour chaque période
   sauf "Personnalisée".
