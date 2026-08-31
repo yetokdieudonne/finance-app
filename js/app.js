@@ -243,6 +243,8 @@ function handleDisconnectFromDrawer() {
         onConfirm: async () => {
           await Sync.disconnect();
           showToast("Déconnecté de la synchronisation");
+          await runAccountGate();
+          await postGateFlow();
         },
       });
     })
@@ -541,15 +543,9 @@ window.addEventListener("appinstalled", () => {
 });
 
 // ============ Initialisation ============
-async function init() {
-  applyAppearance();
-  seedDefaultCategories();
-  // Les données de démonstration ne sont plus injectées automatiquement (elles pollueraient
-  // les données réelles d'un utilisateur au premier lancement) : disponibles sur demande via
-  // Paramètres → Données → "Charger des données de démonstration".
-
-  await runAccountGate();
-
+// Tout ce qui doit se rejouer après le passage de l'écran de connexion — au tout premier
+// lancement comme après une déconnexion volontaire depuis Paramètres/menu.
+async function postGateFlow() {
   if (Security.isLockEnabled()) {
     lockScreen.hidden = false;
     lockPinBtn.hidden = !Security.hasPin();
@@ -571,6 +567,17 @@ async function init() {
 
   switchTab("dashboard");
   checkAllNotifications();
+}
+
+async function init() {
+  applyAppearance();
+  seedDefaultCategories();
+  // Les données de démonstration ne sont plus injectées automatiquement (elles pollueraient
+  // les données réelles d'un utilisateur au premier lancement) : disponibles sur demande via
+  // Paramètres → Données → "Charger des données de démonstration".
+
+  await runAccountGate();
+  await postGateFlow();
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
