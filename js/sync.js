@@ -24,6 +24,7 @@ import {
   setDoc,
   onSnapshot,
   serverTimestamp,
+  increment,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { DB } from "./db.js";
 import { Profile } from "./profile.js";
@@ -191,6 +192,13 @@ export const Sync = {
     await pushToCloud();
     startListening();
     notifyStatus();
+
+    // Compteur global (nombre de comptes créés) pour le tableau de bord admin du site vitrine.
+    // Volontairement séparé des données de l'utilisateur : ce document ne contient qu'un
+    // nombre, jamais de données personnelles ou financières, pour ne pas exposer les
+    // documents `users/{uid}` à un rôle admin.
+    setDoc(doc(db, "stats", "summary"), { totalAccounts: increment(1) }, { merge: true }).catch(() => {});
+
     return { needsReconciliation: false };
   },
 
